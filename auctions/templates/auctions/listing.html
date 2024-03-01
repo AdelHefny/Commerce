@@ -1,0 +1,266 @@
+{% extends "auctions/layout.html" %} {% block body %}
+<section style="position: relative; width: fit-content">
+  <h3 style="padding-bottom: 3rem">
+    {{listing.title}} {% if listing.active == False%} ( listing is no longer
+    active ) {%endif%}
+  </h3>
+  <div style="position: relative">
+    {% if user.is_authenticated %} {% if listing in request.user.watchList.all%}
+    <button onclick="addToWatchList()" id="watchListBtn">
+      <i class="fa-solid fa-heart" style="color: #ff0000"></i>
+    </button>
+    {% else %}
+    <button onclick="addToWatchList()" id="watchListBtn">
+      <i class="fa-regular fa-heart"></i>
+    </button>
+    {% endif %} {% endif %}
+    <img
+      src="{{ listing.img.url }}"
+      alt="listing image"
+      width="300"
+      height="200"
+    />
+  </div>
+  <h5>{{listing.description}}</h5>
+  <h4>
+    Price {{listing.latest_bid_price}}$ {% if listing.active == False%}<span
+      >{% if listing.latest_bider != None%}<span
+        >{{listing.latest_bider}} is the winner</span
+      >
+      {% endif %}</span
+    >{%endif%}
+  </h4>
+  {% if listing.active == False%}
+  <span>{{ listing.bids.all.count}} bids </span>
+  {% else %}
+  <span>{{ listing.bids.all.count}} bid('s) so far.</span>
+  {% endif %} {% if request.user == listing.latest_bider %}
+  <span>your bid is the current bid</span>
+  {% endif%}{% if listing.active == True %}
+  <div>
+    {% if request.user == listing.created_by%}
+    <form action="../closeListing" method="post">
+      {% csrf_token %}
+      <input
+        type="hidden"
+        name="listingId"
+        id="listingId"
+        value="{{listing.pk}}"
+      />
+      <input type="submit" value="close" id="close" name="close" />
+    </form>
+    {%else%}
+    <div>
+      {% if user.is_authenticated %}
+      <form action="/listing/{{listing.pk}}" method="post">
+        {% csrf_token %}
+        <div>
+          <label for="bid_value">Bid</label>
+          <input
+            type="text"
+            name="bid_value"
+            value="{{listing.latest_bid_price}}"
+            placeholder="Bid"
+          />
+        </div>
+        {% if error_message %}
+        <h5 class="errorMessage">{{ error_message }}</h5>
+        {% endif %}
+        <input type="submit" value="submit" />
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+  <div class="comments">
+    <h3>comments</h3>
+    {% for comment in listing.comments.all %}
+    <div class="comment" id="comment-{{comment.pk}}">
+      <h6>{{comment.user.username }} <span>{{comment.created_at }}</span></h6>
+      <p>{{comment.comment }}</p>
+    </div>
+    {% endfor %}
+
+    <script>
+      let comments = document.getElementsByClassName("comment");
+      for (let k = 0; k < comments.length; k++) {
+        comments[k]
+          .getElementsByTagName("h6")[0]
+          .getElementsByTagName("span")[0].textContent = getDate(
+          comments[k],
+          comments[k]
+            .getElementsByTagName("h6")[0]
+            .getElementsByTagName("span")[0].textContent
+        );
+      }
+      function getDate(comment, py_date) {
+        let month = py_date.substring(0, 3).toLowerCase();
+        const months = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        for (let i = 0; i < 12; i++) {
+          if (month == months[i].toLowerCase()) {
+            month = i + 1;
+          }
+        }
+        month = month.toString().padStart(2, "0");
+        let day = "";
+        let i = 5;
+        while (true) {
+          if (py_date[i] == ",") {
+            i += 2;
+            break;
+          }
+          day += py_date[i];
+          i++;
+        }
+        let year = "";
+        while (true) {
+          if (py_date[i] == ",") {
+            i += 2;
+            break;
+          }
+          year += py_date[i];
+          i++;
+        }
+        let hour = "";
+        while (true) {
+          if (py_date[i] == ":") {
+            i++;
+            break;
+          }
+          hour += py_date[i];
+          i++;
+        }
+        let minute = "";
+        while (true) {
+          if (py_date[i] == " ") {
+            i++;
+            break;
+          }
+          minute += py_date[i];
+          i++;
+        }
+        hour = hour.padStart(2, "0");
+        const date = new Date(`${year}-${month}-${day}T${hour}:${minute}:00`);
+        const dateDiff = new Date(Date.now() - date.getTime());
+        console.log(dateDiff);
+        if (dateDiff.getFullYear() != 1970) {
+          return dateDiff.getFullYear() - 1970 + " Year ago";
+        } else if (dateDiff.getMonth() != 0) {
+          return dateDiff.getMonth() + " Month ago";
+        } else if (dateDiff.getDate() != 1) {
+          return dateDiff.getDay() - 1 + " Day ago";
+        } else if (dateDiff.getHours() != 12) {
+          return dateDiff.getHours() - 12 + " Hour ago";
+        } else if (dateDiff.getMinutes() != 0) {
+          return dateDiff.getMinutes() + " Minute ago";
+        } else if (dateDiff.getSeconds() != 0) {
+          return dateDiff.getSeconds() + " Secounds ago";
+        }
+      }
+    </script>
+  </div>
+  {% if user.is_authenticated %}
+  <div>
+    <input type="text" id="comment" name="comment" placeholder="comment" />
+    <input type="submit" value="comment" onclick="addComment()" />
+    <script>
+      function addComment() {
+        let comments = document.getElementsByClassName("comments")[0];
+        let commentInput = document.getElementById("comment");
+        let commentParent = commentInput.parentElement;
+        let comment = commentInput.value;
+        commentInput.value = "";
+        const csrfToken = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("csrftoken="))
+          .split("=")[1];
+        fetch("{{listing.id}}/addComment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          body: JSON.stringify({
+            comment: comment,
+          }),
+        })
+          .then((resp) => {
+            return resp.json();
+          })
+          .then((data) => {
+            if (data.message == "success") {
+              let commentEle = document.createElement("div");
+              commentEle.classList.add("comment");
+              commentEle.setAttribute("id", "comment-" + data.id);
+              let h6 = document.createElement("h6");
+              h6.textContent = "{{request.user.username}} ";
+              let span = document.createElement("span");
+              let p = document.createElement("p");
+              let date = new Date(data.created_at);
+              const dateDiff = new Date(Date.now() - date.getTime());
+              console.log(dateDiff);
+              if (dateDiff.getFullYear() != 1970) {
+                span.textContent = dateDiff.getFullYear() - 1970 + " Year ago";
+              } else if (dateDiff.getMonth() != 0) {
+                span.textContent = dateDiff.getMonth() + " Month ago";
+              } else if (dateDiff.getDate() != 1) {
+                span.textContent = dateDiff.getDay() - 1 + " Day ago";
+              } else if (dateDiff.getHours() != 12) {
+                span.textContent = dateDiff.getHours() + " Hour ago";
+              } else if (dateDiff.getMinutes() != 0) {
+                span.textContent = dateDiff.getMinutes() + " Minute ago";
+              } else if (dateDiff.getSeconds() != 0) {
+                span.textContent = dateDiff.getSeconds() + " Secounds ago";
+              }
+              h6.append(span);
+              commentEle.append(h6);
+              p.textContent = comment;
+              commentEle.append(p);
+              comments.append(commentEle);
+            }
+          });
+      }
+    </script>
+  </div>
+  {% endif %}
+</section>
+<script>
+  function addToWatchList() {
+    fetch("/addWatchList?userId={{request.user.pk}}&listingId={{listing.pk}}", {
+      method: "get",
+    })
+      .then((resp) => {
+        return resp.json();
+      })
+      .then((data) => {
+        if (data.message == "added") {
+          document.getElementById("watchlist").textContent =
+            Number(document.getElementById("watchlist").textContent) + 1;
+          document.getElementById(
+            "watchListBtn"
+          ).innerHTML = `<i class="fa-solid fa-heart" style="color: #ff0000;"></i>`;
+        } else {
+          document.getElementById("watchlist").textContent =
+            Number(document.getElementById("watchlist").textContent) - 1;
+          document.getElementById(
+            "watchListBtn"
+          ).innerHTML = `<i class="fa-regular fa-heart"></i>`;
+        }
+      });
+  }
+</script>
+{% endblock%}

@@ -1,0 +1,99 @@
+body {
+  padding: 10px;
+}
+ul {
+  list-style: none;
+  padding: 0;
+}
+.listings {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+.listingItem {
+  display: flex;
+  flex-direction: row;
+  gap: 3rem;
+  background-color: rgb(214, 214, 214);
+  padding: 1rem;
+  border-radius: 32px;
+  transition: 0.3s ease-in-out;
+  width: 90%;
+  cursor: pointer;
+  overflow: hidden;
+}
+.listingItem:hover {
+  background-color: rgb(200, 200, 200);
+  scale: 1.01;
+}
+.listingItem img {
+  width: 350px;
+  height: 200px;
+  border-radius: 26px;
+  object-fit: cover;
+  transition: 0.3s ease-in-out;
+}
+.listingItem:hover img {
+  scale: 1.07;
+}
+.tag {
+  background-color: gray;
+  color: white;
+  display: block;
+  width: 20px;
+  border-radius: 50%;
+  text-align: center;
+}
+.errorMessage {
+  color: rgb(182, 0, 0);
+}
+#watchListBtn {
+  position: absolute;
+  right: 20px;
+  top: 0;
+  outline: none;
+  border: none;
+  background-color: white;
+  border-radius: 50%;
+  border: black 2px solid;
+}
+.comments {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 1rem;
+}
+.comment {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  background-color: rgb(221, 221, 221);
+  justify-content: center;
+  border-radius: 12px;
+  padding: 0.5rem;
+}
+.comment h6 {
+  margin: 0;
+  font-weight: 700;
+}
+.comment p {
+  margin: 0;
+  font-weight: 400;
+  padding-left: 1rem;
+}
+.comment h6 span {
+  font-weight: 400;
+  font-size: 0.8rem;
+}
+.listField {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.listingForm {
+  width: 30%;
+}

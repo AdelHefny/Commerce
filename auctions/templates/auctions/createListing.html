@@ -1,0 +1,72 @@
+{% extends "auctions/layout.html"%} {% block body%}
+<form
+  class="listingForm"
+  action="createListing"
+  method="post"
+  enctype="multipart/form-data"
+>
+  {% csrf_token %}
+  <fieldset class="listField">
+    <label for="title">title</label>
+    <input type="text" name="title" id="title" placeholder="title" max="3" />
+  </fieldset>
+  <fieldset class="d-flex flex-row align-items-start">
+    <label for="description" style="padding-right: 8px">description</label>
+    <textarea
+      name="description"
+      id="description"
+      placeholder="description"
+      cols="30"
+      rows="8"
+    ></textarea>
+  </fieldset>
+  <fieldset class="listField">
+    <label for="minPrice">Minimum price</label>
+    <input type="text" name="minPrice" id="minPrice" placeholder="Min" />
+  </fieldset>
+  <fieldset
+    id="categories"
+    class="listField"
+    style="display: flex; flex-direction: row; gap: 1rem"
+  >
+    <label for="categories">Categories</label>
+    <input
+      type="text"
+      name="categories"
+      id="category"
+      placeholder="Add category"
+    />
+    <button id="addBtn" type="button">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+  </fieldset>
+  <fieldset class="listField">
+    <label for="image">Listing Image</label>
+    <input type="file" name="image" id="image" placeholder="image" />
+  </fieldset>
+  <h5 style="color: red">{{ message }}</h5>
+  <input type="submit" value="submit" />
+</form>
+<script>
+  let addBtn = document.getElementById("addBtn");
+  addBtn.addEventListener("click", (e) => {
+    console.log("adel");
+    let categories = document.getElementById("categories");
+    let secondInput = document.createElement("input");
+    secondInput.name = "categories";
+    secondInput.type = "text";
+    secondInput.id = "category";
+    secondInput.placeholder = "Add category";
+    let addBtnNode = addBtn.cloneNode();
+    addBtn.remove();
+    categories.append(secondInput);
+    categories.append(addBtn);
+    // addBtn.addEventListener("click", addBtn);
+    // let icon = document.createElement("i");
+    // icon.classList.add("fa-solid");
+    // icon.classList.add("fa-plus");
+    // addBtn.append(icon);
+    // categories.append();
+  });
+</script>
+{% endblock%}

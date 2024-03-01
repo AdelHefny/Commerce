@@ -1,0 +1,42 @@
+{% extends "auctions/layout.html"%} {% block body %}
+<section>
+  <form action="category" method="post">
+    {% csrf_token %}
+    <select name="category" id="category">
+      {% for category in categories %}
+      <option value="{{category.name}}">{{category.name}}</option>
+      {% endfor %}
+    </select>
+    <input type="submit" value="filter" />
+  </form>
+  <div class="d-flex flex-column align-items-center">
+    <section style="display: flex; flex-direction: row; gap: 1rem">
+      <img src="{{firstCat.icon}}" alt="" />
+      <h3>{{firstCat.name}}</h3>
+    </section>
+    <ul>
+      {% for listing in firstCat.listings.all %} {% if listing.active %}
+      <li class="listingItem" onclick="redirect('{{listing.pk}}')">
+        <img src="{{listing.img.url}}" alt="listing image" />
+        <div>
+          <h4>{{listing.title}}</h4>
+          <h4>Price: {{listing.latest_bid_price}}$</h4>
+          <h5>created at: {{listing.created_at}}</h5>
+          <span>{{ listing.bids.all.count }} bids so far </span>
+          {% if listing.latest_bider == request.user %}
+          <span>, your bid is the current bid</span>
+          {% endif %}
+        </div>
+      </li>
+      {% endif %} {%empty%}
+      <p>There are no active listings</p>
+      {% endfor %}
+    </ul>
+  </div>
+  <script>
+    function redirect(id) {
+      window.location.href = "/listing/" + id;
+    }
+  </script>
+</section>
+{% endblock%}

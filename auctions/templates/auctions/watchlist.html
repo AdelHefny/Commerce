@@ -1,0 +1,24 @@
+{% extends "auctions/layout.html"%} {% block body %}
+<h2>Watch List</h2>
+<ul class="listings">
+  {% for listing in request.user.watchList.all %}
+  <li class="listingItem" onclick="redirect('{{listing.pk}}')">
+    <img src="{{listing.img.url}}" alt="listing image" />
+    <div>
+      <h4>{{listing.title}}</h4>
+      <h4>Price: {{listing.latest_bid_price}}$</h4>
+      <h5>created at: {{listing.created_at}}</h5>
+      <span>{{ listing.bids.all.count }} bids so far </span>
+      {% if listing.latest_bider == request.user %}
+      <span>, your bid is the current bid</span>
+      {% endif %}
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+<script>
+  function redirect(id) {
+    window.location.href = "/listing/" + id;
+  }
+</script>
+{% endblock%}
