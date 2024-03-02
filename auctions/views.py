@@ -147,9 +147,13 @@ def createListing(request):
             min_price = request.POST["minPrice"]
             listing = Listing.objects.create(title=title,description=description,latest_bid_price=min_price,created_by=request.user)
             for category in request.POST.getlist('categories'):
-                newCat = Category.objects.create(name=category)
-                newCat.listings.add(listing)
-                newCat.save()
+                print(category)
+                if Category.objects.filter(name=category).count() != 0:
+                    Category.objects.filter(name=category)[0].listings.add(listing)
+                else:
+                    newCat = Category.objects.create(name=category)
+                    newCat.listings.add(listing)
+                    newCat.save()
             if 'image' in request.FILES:
                 image = request.FILES['image']
                 directory = os.path.join(MEDIA_ROOT, 'auctions/categoryIcons')
